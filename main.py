@@ -29,6 +29,11 @@ async def get_writing_prompts(reddit):
     async with aiohttp.ClientSession() as session:
         posts = await reddit.subreddit('writingprompts').get_submissions(session)
         for post in posts:
+            # .link_flair_text results in a fetch which includes the comments, so we need to set these attributes beforehand.
+            # XXX: Ideally we would do this in get_stories(), since that is the method concerned with the comment ordering.
+            post.comment_sort = 'top'
+            post.comment_limit = 2048
+
             if post.link_flair_text == "Writing Prompt":
                 yield post
 
@@ -36,9 +41,9 @@ def get_stories(reddit, prompts):
     mods = reddit.subreddit('writingprompts').moderator()
     mod_names = [mod.name for mod in mods]
 
-    for prompt in prompts:
-        prompt.comment_sort = 'top'
-        top_level_comments = list(prompt.comments)
+    for i, prompt in enumerate(prompts):
+        log.debug("Processing post %s of %s", i + 1, len(prompts))
+        top_level_comments = list(prompt.comments) # NOTE: sort = top, limit = 2048 assumed
 
         for comment in top_level_comments:
             is_mod_comment = comment.author.name in mod_names

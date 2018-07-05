@@ -6,10 +6,10 @@ import time
 log = logging.getLogger(__name__)
 
 async def async_generator_to_list(generator):
-    result = []
-    async for item in generator:
-        result.append(item)
-    return result
+    return [item async for item in generator]
+
+def generator_to_list(generator):
+    return [item for item in generator]
 
 def unique(items, key):
     keys = set()

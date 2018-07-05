@@ -5,6 +5,12 @@ import time
 
 log = logging.getLogger(__name__)
 
+async def async_generator_to_list(generator):
+    result = []
+    async for item in generator:
+        result.append(item)
+    return result
+
 def unique(items, key):
     keys = set()
     for item in items:

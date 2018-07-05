@@ -37,11 +37,17 @@ def get_stories(reddit, prompts):
     mod_names = [mod.name for mod in mods]
 
     for prompt in prompts:
+        prompt.comment_sort = 'top'
         top_level_comments = list(prompt.comments)
+
         for comment in top_level_comments:
             is_mod_comment = comment.author.name in mod_names
             sufficiently_long = (len(comment.body) >= 300)
-            if not is_mod_comment and sufficiently_long:
+            above_score_threshold = (comment.score >= 5)
+
+            if not above_score_threshold:
+                break
+            elif not is_mod_comment and sufficiently_long:
                 yield comment.body
 
 async def main():
